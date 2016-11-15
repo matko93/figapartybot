@@ -3,13 +3,13 @@ require_once 'vendor/autoload.php';
 require_once 'stopwatch.php';
  
 // connect to database
-$mysqli = new mysqli('database_host', 'database_user', 'database_password', 'database_name');
+$mysqli = new mysqli('db4free.net', 'matko', 'siaw9wur', 'figapartybot');
 if (!empty($mysqli->connect_errno)) {
     throw new \Exception($mysqli->connect_error, $mysqli->connect_errno);
 }
  
 // create a bot
-$bot = new \TelegramBot\Api\Client('bot_token', 'botanio_token');
+$bot = new \TelegramBot\Api\Client('279438339:AAE_F3jEtmrun9i1F57sf_CXWn3lPe-u6YE', '9OyWH2Ph8dk7T2aHc_OyAJzwMpBGRWyb');
 // run, bot, run!
 $bot->run();
 
