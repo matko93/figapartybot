@@ -1,4 +1,5 @@
-class Stopwatch
+<?php
+     class Stopwatch
 {
     /** @var mysqli */
     private $mysqli;
@@ -52,3 +53,4 @@ public function status()
     }
 }
 }
+?>
