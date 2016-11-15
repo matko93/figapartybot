@@ -6,6 +6,7 @@ require_once 'stopwatch.php';
 $mysqli = new mysqli('db4free.net', 'matko', 'siaw9wur', 'figapartybot');
 if (!empty($mysqli->connect_errno)) {
     throw new \Exception($mysqli->connect_error, $mysqli->connect_errno);
+ print("connessione non va");
 }
  
 // create a bot
