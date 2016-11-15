@@ -10,7 +10,7 @@ if (!empty($mysqli->connect_errno)) {
 }
  
 // create a bot
-$bot = new Zelenin\Telegram\Bot\('279438339:AAE_F3jEtmrun9i1F57sf_CXWn3lPe-u6YE', '9OyWH2Ph8dk7T2aHc_OyAJzwMpBGRWyb');
+$bot = new Zelenin\Telegram\Bot\('279438339:AAE_F3jEtmrun9i1F57sf_CXWn3lPe-u6YE');
 // run, bot, run!
 $bot->run();
 
