@@ -1,45 +1,45 @@
 <?php
-
-/*
-* This file is part of GeeksWeb Bot (GWB).
-*
-* GeeksWeb Bot (GWB) is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 3
-* as published by the Free Software Foundation.
-* 
-* GeeksWeb Bot (GWB) is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.  <http://www.gnu.org/licenses/>
-*
-* Author(s):
-*
-* © 2015 Kasra Madadipouya <kasra@madadipouya.com>
-*
-*/
-require 'vendor/autoload.php';
-
-$client = new Zelenin\Telegram\Bot\Api('279438339:AAE_F3jEtmrun9i1F57sf_CXWn3lPe-u6YE'); // Set your access token
-$url = ''; // URL RSS feed
-$update = json_decode(file_get_contents('php://input'));
-
-
-# This function reads your DATABASE_URL config var and returns a connection
-# string suitable for pg_connect. Put this in your app.
-function pg_connection_string_from_database_url() {
-  extract(parse_url($_ENV["DATABASE_URL"]));
-  return "user=$user password=$pass host=$host dbname=" . substr($path, 1); # <- you may want to add sslmode=require there too
+require_once 'vendor/autoload.php';
+require_once 'stopwatch.php';
+ 
+// connect to database
+$mysqli = new mysqli('database_host', 'database_user', 'database_password', 'database_name');
+if (!empty($mysqli->connect_errno)) {
+    throw new \Exception($mysqli->connect_error, $mysqli->connect_errno);
 }
-# Here we establish the connection. Yes, that's all.
-$pg_conn = pg_connect(pg_connection_string_from_database_url());
-# Now let's use the connection for something silly just to prove it works:
-$result = pg_query($pg_conn, "SELECT relname FROM pg_stat_user_tables WHERE schemaname='public'");
-print "<pre>\n";
-if (!pg_num_rows($result)) {
-  print("Your connection is working, but your database is empty.\nFret not. This is expected for new apps.\n");
-} else {
-  print "Tables in your database:\n";
-  while ($row = pg_fetch_row($result)) { print("- $row[0]\n"); }
-}
-print "\n";
+ 
+// create a bot
+$bot = new \TelegramBot\Api\Client('bot_token', 'botanio_token');
+// run, bot, run!
+$bot->run();
+
+$bot->command('start', function ($message) use ($bot) {
+    $answer = 'Howdy! Welcome to the stopwatch. Use bot commands or keyboard to control your time.';
+    $bot->sendMessage($message->getChat()->getId(), $answer);
+});
+
+$bot->command('go', function ($message) use ($bot, $mysqli) {
+    $stopwatch = new Stopwatch($mysqli, $message->getChat()->getId());
+    $stopwatch->start();
+    $bot->sendMessage($message->getChat()->getId(), 'Stopwatch started. Go!');
+});
+
+$bot->command('status', function ($message) use ($bot, $mysqli) {
+    $stopwatch = new Stopwatch($mysqli, $message->getChat()->getId());
+    $answer = $stopwatch->status();
+    if (empty($answer)) {
+        $answer = 'Timer is not started.';
+    }
+    $bot->sendMessage($message->getChat()->getId(), $answer);
+});
+
+$bot->command('stop', function ($message) use ($bot, $mysqli) {
+    $stopwatch = new Stopwatch($mysqli, $message->getChat()->getId());
+    $answer = $stopwatch->status();
+    if (!empty($answer)) {
+        $answer = 'Your time is ' . $answer . PHP_EOL;
+    }
+    $stopwatch->stop();
+    $bot->sendMessage($message->getChat()->getId(), $answer . 'Stopwatch stopped. Enjoy your time!');
+});
 ?>
